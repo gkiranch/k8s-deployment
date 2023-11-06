@@ -9,7 +9,7 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    name: kind
+    name: in-cluster
     namespace: argocd
   source:
     path: apps/clusters/kind
