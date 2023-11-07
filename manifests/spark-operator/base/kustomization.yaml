@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: spark-operator
+
+resources:
+  - ../upstream/spark-operator-with-webhook-install
+
+patches:
+  - path: patches/overwrite-sparkoperator-deploy.yaml
+    target:
+      kind: Deployment
+      name: sparkoperator
+  - path: patches/overwrite-sparkoperator-svc.yaml
+    target:
+      kind: Service
+      name: spark-webhook
+
+labels:
+  - pairs:
+      app: spark-operator
+      app.kubernetes.io/component: spark-operator
+      app.kubernetes.io/instance: spark-operator
+      app.kubernetes.io/name: spark-operator
+      k8s_app: spark-operator
+

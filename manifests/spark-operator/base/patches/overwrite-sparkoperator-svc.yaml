@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: spark-webhook
+  namespace: spark-operator
+spec:
+  selector:
+    app: spark-operator
+    app.kubernetes.io/component: spark-operator
+    app.kubernetes.io/instance: spark-operator
+    app.kubernetes.io/name: spark-operator
+    k8s_app: spark-operator

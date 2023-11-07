@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparkoperator
+  namespace: spark-operator
+spec:
+  selector:
+    matchLabels:
+      app: spark-operator
+      app.kubernetes.io/name: spark-operator
+      app.kubernetes.io/instance: spark-operator
+  template:
+    spec:
+      containers:
+        - name: sparkoperator
+          args:
+            - -v=2
+            - -namespace=
+            - -ingress-url-format=
+            - -controller-threads=10
+            - -resync-interval=30
+            - -logtostderr
+            - -enable-metrics=true
+            - -metrics-labels=app_type
+            - -metrics-port=10254
+            - -metrics-endpoint=/metrics
+            - -metrics-prefix=
+            - -enable-webhook=true
+            - -webhook-svc-namespace=spark-operator
+            - -webhook-port=8080
+            - -webhook-svc-name=spark-webhook
+            - -webhook-config-name=spark-operator-webhook-config
+            - -webhook-namespace-selector=
+            - -leader-election=true
+            - -leader-election-lock-namespace=spark-operator
+            - -leader-election-lock-name=spark-operator
+          imagePullPolicy: IfNotPresent
