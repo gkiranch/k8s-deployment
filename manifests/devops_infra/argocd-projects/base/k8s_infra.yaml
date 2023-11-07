@@ -20,5 +20,3 @@ spec:
     # A role which provides read-only access to all applications in the project
     - name: admin
       description: admin access privileges to support team
-      groups:
-        - argocd-admin
