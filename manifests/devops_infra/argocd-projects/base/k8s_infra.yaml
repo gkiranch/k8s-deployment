@@ -20,7 +20,5 @@ spec:
     # A role which provides read-only access to all applications in the project
     - name: admin
       description: admin access privileges to support team
-      policies:
-        - p, proj:s1-k8s-infra:admin, applications, *, s1-k8s-infra/*, allow
       groups:
         - argocd-admin

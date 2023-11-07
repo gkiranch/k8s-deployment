@@ -1,18 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: columbia.spark-operator
+  name: kind.spark-operator
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: s1-k8s-infra
   source:
-    repoURL: git@ghe.eng.sentinelone.tech:Sentinel-One/k8s-deployments-infra
+    repoURL: "https://github.com/gkiranch/k8s-deployment.git"
     targetRevision: HEAD
-    path: manifests/k8s_infra/spark-operator/clusters/columbia
+    path: manifests/spark-operator/clusters/kind
   destination:
-    name: columbia
+    name: in-cluster
     namespace: spark-operator
   syncPolicy:
     automated:
