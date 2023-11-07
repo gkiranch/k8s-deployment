@@ -6,15 +6,18 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '-1'
   finalizers:
-  - resources-finalizer.argocd.argoproj.io
+    - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     name: in-cluster
     namespace: argocd
-  source:
-    path: apps/clusters/kind
-    repoURL: git@github.com:gkiranch/k8s-deployment
-    targetRevision: main
+  sources:
+    - path: apps/clusters/kind
+      repoURL: git@github.com:gkiranch/k8s-deployment
+      targetRevision: main
+    - path: infra_apps/clusters/kind
+      repoURL: git@github.com:gkiranch/k8s-deployment
+      targetRevision: main
   project: default
   syncPolicy:
     automated:
