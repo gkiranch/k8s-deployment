@@ -13,10 +13,10 @@ spec:
     namespace: argocd
   sources:
     - path: apps/clusters/kind
-      repoURL: git@github.com:gkiranch/k8s-deployment
+      repoURL: https://github.com/gkiranch/k8s-deployment.git
       targetRevision: main
     - path: infra_apps/clusters/kind
-      repoURL: git@github.com:gkiranch/k8s-deployment
+      repoURL: https://github.com/gkiranch/k8s-deployment.git
       targetRevision: main
   project: default
   syncPolicy:
