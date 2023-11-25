@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - guest-book.yaml
-  #- spark-operator.yaml
+  - spark-operator.yaml
