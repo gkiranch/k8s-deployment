@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kind.dex
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: s1-k8s-infra
+  source:
+    repoURL: "https://github.com/gkiranch/k8s-deployment.git"
+    targetRevision: master
+    path: manifests/dex/charts/dex-2.38
+    helm:
+      releaseName: dex
+      valueFiles:
+        - values.yaml
+        - ../../clusters/kind/values.yaml
+  destination:
+    name: in-cluster
+    namespace: dex
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
