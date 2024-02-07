@@ -9,7 +9,7 @@ spec:
   project: s1-k8s-infra
   source:
     repoURL: "https://github.com/gkiranch/k8s-deployment.git"
-    targetRevision: master
+    targetRevision: main
     path: manifests/dex/charts/dex-2.38
     helm:
       releaseName: dex
