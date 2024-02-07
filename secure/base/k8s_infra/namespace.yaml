@@ -3,3 +3,7 @@ kind: Namespace
 metadata:
   name: spark-operator
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex
