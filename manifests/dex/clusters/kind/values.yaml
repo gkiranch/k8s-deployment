@@ -12,7 +12,8 @@ config:
 
 ingress:
   enabled: true
-
+  annotations:
+    cert-manager.io/cluster-issuer: acme
   hosts:
     - host: dex.gk.guru.com
       paths:
