@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sparkoperator
-  namespace: spark-operator
 spec:
   selector:
     matchLabels:
