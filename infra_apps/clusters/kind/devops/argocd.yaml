@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:gkiranch/k8s-deployment
+    repoURL: https://github.com/gkiranch/k8s-deployment
     targetRevision: HEAD
     path: manifests/devops_infra/argocd/clusters/kind
   destination:
