@@ -3,3 +3,7 @@ kind: Namespace
 metadata:
   name: dex
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: guestbooknew
