@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   destination:
-    namespace: guestbook
+    namespace: guestbooknew
     server: "https://kubernetes.default.svc"
   project: default
   source:
@@ -14,4 +14,4 @@ spec:
     targetRevision: master
   syncPolicy:
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
