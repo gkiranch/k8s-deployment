@@ -13,7 +13,7 @@ spec:
     path: manifests/spark-operator/clusters/kind
   destination:
     name: in-cluster
-    namespace: spark-operator
+    namespace: test-namespace
   syncPolicy:
     automated:
       prune: true
