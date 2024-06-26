@@ -5,3 +5,4 @@ resources:
   - guest-book.yaml
   - spark-operator.yaml
   - dex.yaml
+  - guest-book1.yaml
