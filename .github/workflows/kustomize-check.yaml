@@ -27,14 +27,14 @@ jobs:
 
           echo "Changed files: $CHANGED_FILES"
 
-          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^k8s-deployment/k8s-deployment/apps/clusters/')
+          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^k8s-deployment/k8s-deployment/apps/')
           SECURE_CHANGED=$(echo "$CHANGED_FILES" | grep '^secure/')
 
           if [ -n "$APPS_CHANGED" ]; then
-            echo "Files in 'apps/clusters' have been changed."
+            echo "Files in 'apps' have been changed."
             echo "::set-output name=apps_changed::true"
           else
-            echo "No changes in 'apps/clusters'."
+            echo "No changes in 'apps'."
             echo "::set-output name=apps_changed::false"
           fi
 
@@ -52,10 +52,13 @@ jobs:
           echo "Running kustomize build for each cluster in 'apps/clusters'..."
           for dir in k8s-deployment/k8s-deployment/apps/clusters/*; do
             if [ -d "$dir" ]; then
-              echo "Processing directory $dir"
-              cd $dir
-              kustomize build .
-              cd -  # Go back to previous directory
+              CHANGED_FILES_IN_DIR=$(echo "$CHANGED_FILES" | grep "^${dir#*/}")
+              if [ -n "$CHANGED_FILES_IN_DIR" ]; then
+                echo "Processing directory $dir"
+                cd $dir
+                kustomize build .
+                cd -  # Go back to previous directory
+              fi
             fi
           done
           echo "kustomize build for all clusters in 'apps/clusters' completed."
@@ -81,3 +84,8 @@ jobs:
           git add -A
           git commit -m "Automated commit for changes in apps/clusters or secure directory"
           git push "https://${NEW_GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
+
+      - name: No relevant changes detected
+        if: steps.check_changes.outputs.apps_changed == 'false' && steps.check_changes.outputs.secure_changed == 'false'
+        run: |
+          echo "No relevant changes detected in 'apps' or 'secure' directories."
