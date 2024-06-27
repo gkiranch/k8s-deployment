@@ -6,4 +6,3 @@ resources:
   - spark-operator.yaml
   - dex.yaml
   - guest-book1.yaml
-  - testing-just-like
