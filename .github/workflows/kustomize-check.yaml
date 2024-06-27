@@ -46,5 +46,10 @@ jobs:
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
               (cd $directory && kustomize build .)
+              if [[ $? -ne 0 ]]; then
+                echo "kustomize build failed in $directory"
+              fi
+            else
+              echo "File '$file' does not match any known patterns."
             fi
           done
