@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - k8s_infra
-  - k8s-infra7
+  - k8s-infra8
