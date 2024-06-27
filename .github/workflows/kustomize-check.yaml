@@ -1,4 +1,4 @@
-name: Kustomize Build on Directory Changes
+name: Custom Build and Push
 
 on:
   push:
@@ -27,14 +27,14 @@ jobs:
 
           echo "Changed files: $CHANGED_FILES"
 
-          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^apps/')
+          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^k8s-deployment/k8s-deployment/apps/clusters/')
           SECURE_CHANGED=$(echo "$CHANGED_FILES" | grep '^secure/')
 
           if [ -n "$APPS_CHANGED" ]; then
-            echo "Files in 'apps' have been changed."
+            echo "Files in 'apps/clusters' have been changed."
             echo "::set-output name=apps_changed::true"
           else
-            echo "No changes in 'apps'."
+            echo "No changes in 'apps/clusters'."
             echo "::set-output name=apps_changed::false"
           fi
 
@@ -46,13 +46,19 @@ jobs:
             echo "::set-output name=secure_changed::false"
           fi
 
-      - name: Run kustomize build for 'apps'
+      - name: Run kustomize build for each cluster in 'apps/clusters'
         if: steps.check_changes.outputs.apps_changed == 'true'
         run: |
-          echo "Running kustomize build for 'apps'..."
-          cd apps
-          kustomize build .
-          echo "kustomize build for 'apps' completed."
+          echo "Running kustomize build for each cluster in 'apps/clusters'..."
+          for dir in k8s-deployment/k8s-deployment/apps/clusters/*; do
+            if [ -d "$dir" ]; then
+              echo "Processing directory $dir"
+              cd $dir
+              kustomize build .
+              cd -  # Go back to previous directory
+            fi
+          done
+          echo "kustomize build for all clusters in 'apps/clusters' completed."
 
       - name: Run kustomize build for 'secure'
         if: steps.check_changes.outputs.secure_changed == 'true'
@@ -61,3 +67,17 @@ jobs:
           cd secure
           kustomize build .
           echo "kustomize build for 'secure' completed."
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and Push Changes
+        if: steps.check_changes.outputs.apps_changed == 'true' || steps.check_changes.outputs.secure_changed == 'true'
+        env:
+          NEW_GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}
+        run: |
+          git add -A
+          git commit -m "Automated commit for changes in apps/clusters or secure directory"
+          git push "https://${NEW_GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref }}
