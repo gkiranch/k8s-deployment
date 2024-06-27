@@ -87,5 +87,4 @@ jobs:
 
       - name: No relevant changes detected
         if: steps.check_changes.outputs.apps_changed == 'false' && steps.check_changes.outputs.secure_changed == 'false'
-        run: |
-          echo "No relevant changes detected in 'apps' or 'secure' directories."
+        run: echo "No relevant changes detected in 'apps' or 'secure' directories."
