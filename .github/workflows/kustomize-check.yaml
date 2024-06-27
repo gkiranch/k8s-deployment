@@ -29,7 +29,7 @@ jobs:
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
           APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
-          SECURE_CLUSTERS_REGEX: '^secure/base/.*/'
+          SECURE_CLUSTERS_REGEX: '^secure/.*/'
         run: |
           set +e
           for file in ${ALL_CHANGED_FILES}; do
@@ -42,7 +42,7 @@ jobs:
                 echo "kustomize build failed in $directory"
             fi
             elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
-              echo "File '$file' was changed in secure/clusters/**/"
+              echo "File '$file' was changed in secure/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
               (cd $directory && kustomize build .)
