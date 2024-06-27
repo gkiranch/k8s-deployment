@@ -1,0 +1,63 @@
+name: Kustomize Build on Directory Changes
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+      - 'release/*'
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/kustomize
+
+      - name: Check for changes in 'apps' and 'secure' directories
+        id: check_changes
+        run: |
+          git fetch --depth=2
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+
+          echo "Changed files: $CHANGED_FILES"
+
+          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^apps/')
+          SECURE_CHANGED=$(echo "$CHANGED_FILES" | grep '^secure/')
+
+          if [ -n "$APPS_CHANGED" ]; then
+            echo "Files in 'apps' have been changed."
+            echo "::set-output name=apps_changed::true"
+          else
+            echo "No changes in 'apps'."
+            echo "::set-output name=apps_changed::false"
+          fi
+
+          if [ -n "$SECURE_CHANGED" ]; then
+            echo "Files in 'secure' have been changed."
+            echo "::set-output name=secure_changed::true"
+          else
+            echo "No changes in 'secure'."
+            echo "::set-output name=secure_changed::false"
+          fi
+
+      - name: Run kustomize build for 'apps'
+        if: steps.check_changes.outputs.apps_changed == 'true'
+        run: |
+          echo "Running kustomize build for 'apps'..."
+          cd apps
+          kustomize build .
+          echo "kustomize build for 'apps' completed."
+
+      - name: Run kustomize build for 'secure'
+        if: steps.check_changes.outputs.secure_changed == 'true'
+        run: |
+          echo "Running kustomize build for 'secure'..."
+          cd secure
+          kustomize build .
+          echo "kustomize build for 'secure' completed."
