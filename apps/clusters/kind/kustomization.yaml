@@ -6,4 +6,4 @@ resources:
   - spark-operator.yaml
   - dex.yaml
   - guest-book1.yaml
-  - guest-book2.yaml
+  - guest-book3.yaml
