@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Ensure sufficient depth for commit history
 
       - name: Install Kustomize
         run: |
@@ -22,13 +24,13 @@ jobs:
       - name: Check for changes in 'apps' and 'secure' directories
         id: check_changes
         run: |
-          git fetch --depth=2
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          git fetch --depth=2 || exit 0  # Fetch the commit history with sufficient depth
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} || echo "")
 
           echo "Changed files: $CHANGED_FILES"
 
-          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^k8s-deployment/k8s-deployment/apps/')
-          SECURE_CHANGED=$(echo "$CHANGED_FILES" | grep '^secure/')
+          APPS_CHANGED=$(echo "$CHANGED_FILES" | grep '^k8s-deployment/k8s-deployment/apps/' || echo "")
+          SECURE_CHANGED=$(echo "$CHANGED_FILES" | grep '^secure/' || echo "")
 
           if [ -n "$APPS_CHANGED" ]; then
             echo "Files in 'apps' have been changed."
@@ -52,7 +54,7 @@ jobs:
           echo "Running kustomize build for each cluster in 'apps/clusters'..."
           for dir in k8s-deployment/k8s-deployment/apps/clusters/*; do
             if [ -d "$dir" ]; then
-              CHANGED_FILES_IN_DIR=$(echo "$CHANGED_FILES" | grep "^${dir#*/}")
+              CHANGED_FILES_IN_DIR=$(echo "$CHANGED_FILES" | grep "^${dir#*/}" || echo "")
               if [ -n "$CHANGED_FILES_IN_DIR" ]; then
                 echo "Processing directory $dir"
                 cd $dir
