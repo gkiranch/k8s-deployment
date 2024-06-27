@@ -27,15 +27,11 @@ jobs:
               echo "File '$file' was changed in apps/clusters/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
-              cd $directory
-              kustomize build .
-              cd -  # Return to previous directory
+              (cd $directory && kustomize build .)
             elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in secure/clusters/*/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
-              cd $directory
-              kustomize build .
-              cd -  # Return to previous directory
+              (cd $directory && kustomize build .)
             fi
           done
