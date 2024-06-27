@@ -53,3 +53,8 @@ jobs:
               echo "File '$file' does not match any known patterns."
             fi
           done
+          
+          if [ "$FAILED" = true ]; then
+            echo "One or more kustomize builds failed."
+            exit 1
+          fi
