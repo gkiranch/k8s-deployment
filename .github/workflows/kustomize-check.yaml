@@ -24,14 +24,18 @@ jobs:
           APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
           SECURE_CLUSTERS_REGEX: '^secure/clusters/.*/'
         run: |
+          set +e
           for file in ${ALL_CHANGED_FILES}; do
             if [[ $file =~ $APPS_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in apps/clusters/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
               (cd $directory && kustomize build .)
+            if [[ $? -ne 0 ]]; then
+                echo "kustomize build failed in $directory"
+            fi
             elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
-              echo "File '$file' was changed in secure/clusters/*/"
+              echo "File '$file' was changed in secure/clusters/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
               (cd $directory && kustomize build .)
