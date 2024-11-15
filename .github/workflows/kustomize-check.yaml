@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main  # Adjust as per your branch needs
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check-and-build:
