@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kind.jenkins
+  namespace: argocd
+spec:
+  destination:
+    namespace: test-namespace
+    server: "https://kubernetes.default.svc"
+  project: default
+  source:
+    repoURL: "https://github.com/jenkinsci/helm-charts.git"
+    targetRevision: HEAD
+    path: manifests/guestbook
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
