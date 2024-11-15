@@ -28,6 +28,7 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
           done
+
       - name: Process changed files and run kustomize build
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -35,23 +36,29 @@ jobs:
           SECURE_CLUSTERS_REGEX: '^secure/.*/'
         run: |
           set +e
+          FAILED=false
+          
           for file in ${ALL_CHANGED_FILES}; do
             if [[ $file =~ $APPS_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in apps/clusters/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
-              (cd $directory && kustomize build .)
-            if [[ $? -ne 0 ]]; then
+              (cd "$directory" && kustomize build .) || FAILED=true
+          
+              if [ "$FAILED" = true ]; then
                 echo "kustomize build failed in $directory"
-            fi
+              fi
+          
             elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in secure/**/"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
-              (cd $directory && kustomize build .)
-              if [[ $? -ne 0 ]]; then
+              (cd "$directory" && kustomize build .) || FAILED=true
+          
+              if [ "$FAILED" = true ]; then
                 echo "kustomize build failed in $directory"
               fi
+          
             else
               echo "File '$file' does not match any known patterns."
             fi
