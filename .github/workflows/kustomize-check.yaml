@@ -40,6 +40,12 @@ jobs:
 
           # Loop through all changed files
           for file in ${ALL_CHANGED_FILES}; do
+            # Skip kustomization.yaml files
+            if [[ "$(basename "$file")" == "kustomization.yaml" ]]; then
+              echo "Skipping $file"
+              continue
+            fi
+
             if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
               directory=$(dirname "$file")
               if [[ $file == *.yaml ]]; then
@@ -69,6 +75,11 @@ jobs:
           FAILED=false
           
           for file in ${ALL_CHANGED_FILES}; do
+            if [[ "$(basename "$file")" == "kustomization.yaml" ]]; then
+              echo "Skipping $file"
+              continue
+            fi
+
             if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in monitored directories"
               directory=$(dirname "$file")
@@ -88,4 +99,3 @@ jobs:
             echo "One or more kustomize builds failed."
             exit 1
           fi
-
