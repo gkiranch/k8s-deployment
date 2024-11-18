@@ -29,6 +29,36 @@ jobs:
             echo "$file was changed"
           done
 
+      - name: Validate kustomization.yaml includes all resources
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
+          SECURE_CLUSTERS_REGEX: '^secure/.*/'
+        run: |
+          set +e
+          FAILED=false
+
+          # Loop through all changed files
+          for file in ${ALL_CHANGED_FILES}; do
+            if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
+              directory=$(dirname "$file")
+              if [[ $file == *.yaml ]]; then
+                echo "Validating kustomization.yaml in $directory for resource $file"
+          
+                # Check if the file is listed in kustomization.yaml
+                if ! grep -q "$(basename "$file")" "$directory/kustomization.yaml"; then
+                  echo "Error: $file is not included in $directory/kustomization.yaml"
+                  FAILED=true
+                fi
+              fi
+            fi
+          done
+
+          if [ "$FAILED" = true ]; then
+            echo "One or more resources are missing from kustomization.yaml"
+            exit 1
+          fi
+
       - name: Process changed files and run kustomize build
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -39,18 +69,8 @@ jobs:
           FAILED=false
           
           for file in ${ALL_CHANGED_FILES}; do
-            if [[ $file =~ $APPS_CLUSTERS_REGEX ]]; then
-              echo "File '$file' was changed in apps/clusters/**/"
-              directory=$(dirname "$file")
-              echo "Running kustomize build in $directory"
-              (cd "$directory" && kustomize build .) || FAILED=true
-          
-              if [ "$FAILED" = true ]; then
-                echo "kustomize build failed in $directory"
-              fi
-          
-            elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
-              echo "File '$file' was changed in secure/**/"
+            if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
+              echo "File '$file' was changed in monitored directories"
               directory=$(dirname "$file")
               echo "Running kustomize build in $directory"
               (cd "$directory" && kustomize build .) || FAILED=true
@@ -68,3 +88,4 @@ jobs:
             echo "One or more kustomize builds failed."
             exit 1
           fi
+
