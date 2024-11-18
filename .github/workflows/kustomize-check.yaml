@@ -26,7 +26,7 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
           APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
           SECURE_CLUSTERS_REGEX: '^secure/.*/'
-          ARGO_PROJECTS_REGEX: '^manifests/devops_infra/argo-projects/base/.'
+          ARGO_PROJECTS_REGEX: '^manifests/devops_infra/argo-projects/.*/'
         run: |
           set +e
           FAILED=false
