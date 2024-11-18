@@ -39,8 +39,8 @@ jobs:
             fi
 
             directory=$(dirname "$file")
-
-            # Check for apps/clusters changes
+            
+            echo "########## Check for apps/clusters changes ##########"
             if [[ $file =~ $APPS_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in apps/clusters/**/"
 
@@ -58,7 +58,7 @@ jobs:
                 echo "kustomize build failed in $directory"
               fi
 
-            # Check for secure directory changes and validate namespace.yaml
+            echo " ########## Check for secure directory changes and validate namespace.yaml ########## "
             elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
               echo "File '$file' was changed in secure/**/"
 
@@ -76,7 +76,7 @@ jobs:
                 echo "kustomize build failed in $directory"
               fi
 
-            # Check for argo-projects directory changes
+            echo "######### Check for argo-projects directory changes ##########"
             elif [[ $file =~ $ARGO_PROJECTS_REGEX ]]; then
               echo "File '$file' was changed in manifests/devops_infra/argo-projects/base/**"
 
