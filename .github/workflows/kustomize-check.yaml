@@ -3,7 +3,7 @@ name: Check and Build Kustomize
 on:
   push:
     branches:
-      - main  # Adjust as per your branch needs
+      - main
   pull_request:
     branches:
       - main
@@ -21,15 +21,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v44
 
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
-
-      - name: Validate kustomization.yaml includes all resources
+      - name: Process changed files and validate kustomization.yaml
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
           APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
@@ -38,64 +30,56 @@ jobs:
           set +e
           FAILED=false
 
-          # Loop through all changed files
           for file in ${ALL_CHANGED_FILES}; do
-            # Skip kustomization.yaml files
+            # Skip kustomization.yaml files themselves
             if [[ "$(basename "$file")" == "kustomization.yaml" ]]; then
               echo "Skipping $file"
               continue
             fi
 
-            if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
-              directory=$(dirname "$file")
-              if [[ $file == *.yaml ]]; then
-                echo "Validating kustomization.yaml in $directory for resource $file"
-          
-                # Check if the file is listed in kustomization.yaml
-                if ! grep -q "$(basename "$file")" "$directory/kustomization.yaml"; then
-                  echo "Error: $file is not included in $directory/kustomization.yaml"
-                  FAILED=true
-                fi
+            directory=$(dirname "$file")
+
+            # Check for apps/clusters changes
+            if [[ $file =~ $APPS_CLUSTERS_REGEX ]]; then
+              echo "File '$file' was changed in apps/clusters/**/"
+
+              # Check if the file is included in kustomization.yaml
+              if ! grep -q "$(basename "$file")" "$directory/kustomization.yaml"; then
+                echo "Error: $(basename "$file") is not included in $directory/kustomization.yaml."
+                FAILED=true
               fi
-            fi
-          done
 
-          if [ "$FAILED" = true ]; then
-            echo "One or more resources are missing from kustomization.yaml"
-            exit 1
-          fi
-
-      - name: Process changed files and run kustomize build
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-          APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
-          SECURE_CLUSTERS_REGEX: '^secure/.*/'
-        run: |
-          set +e
-          FAILED=false
-          
-          for file in ${ALL_CHANGED_FILES}; do
-            if [[ "$(basename "$file")" == "kustomization.yaml" ]]; then
-              echo "Skipping $file"
-              continue
-            fi
-
-            if [[ $file =~ $APPS_CLUSTERS_REGEX ]] || [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
-              echo "File '$file' was changed in monitored directories"
-              directory=$(dirname "$file")
+              # Run kustomize build
               echo "Running kustomize build in $directory"
               (cd "$directory" && kustomize build .) || FAILED=true
-          
+
               if [ "$FAILED" = true ]; then
                 echo "kustomize build failed in $directory"
               fi
-          
+
+            # Check for secure directory changes and validate namespace.yaml
+            elif [[ $file =~ $SECURE_CLUSTERS_REGEX ]]; then
+              echo "File '$file' was changed in secure/**/"
+
+              # Validate namespace.yaml inclusion in kustomization.yaml
+              if ! grep -q "namespace.yaml" "$directory/kustomization.yaml"; then
+                echo "Error: namespace.yaml is not included in $directory/kustomization.yaml."
+                FAILED=true
+              fi
+
+              # Run kustomize build
+              echo "Running kustomize build in $directory"
+              (cd "$directory" && kustomize build .) || FAILED=true
+
+              if [ "$FAILED" = true ]; then
+                echo "kustomize build failed in $directory"
+              fi
             else
               echo "File '$file' does not match any known patterns."
             fi
           done
-          
+
           if [ "$FAILED" = true ]; then
-            echo "One or more kustomize builds failed."
+            echo "One or more validation checks or kustomize builds failed."
             exit 1
           fi
