@@ -26,7 +26,7 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
           APPS_CLUSTERS_REGEX: '^apps/clusters/.*/'
           SECURE_CLUSTERS_REGEX: '^secure/.*/'
-          ARGO_PROJECTS_REGEX: '^manifests/devops_infra/argo-projects/base/.*'
+          ARGO_PROJECTS_REGEX: '^manifests/devops_infra/argo-projects/base/.'
         run: |
           set +e
           FAILED=false
@@ -78,7 +78,7 @@ jobs:
 
             # Check for argo-projects directory changes
             elif [[ $file =~ $ARGO_PROJECTS_REGEX ]]; then
-              echo "File '$file' was changed in manifests/devops_infra/argo-projects/base/**/"
+              echo "File '$file' was changed in manifests/devops_infra/argo-projects/base/**"
 
               # Check if the file is included in kustomization.yaml
               if ! grep -q "$(basename "$file")" "$directory/kustomization.yaml"; then
