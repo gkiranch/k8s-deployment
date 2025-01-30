@@ -7,4 +7,4 @@ resources:
   - dex.yaml
   - guest-book1.yaml
   - jenkins.yaml
-  - jenkins2.yaml
+  - guest-book-appset.yaml
